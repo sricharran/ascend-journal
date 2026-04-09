@@ -1705,20 +1705,63 @@ function setGreeting() {
 }
 
 // ── AUTH
+// ── AUTH SYSTEM ──
+
+// Default password (used only if nothing is stored)
+const DEFAULT_PASSWORD = "trade123";
+
+// Get current password safely
+function getPassword() {
+  const stored = localStorage.getItem('tl_p');
+  return stored ? stored.trim() : DEFAULT_PASSWORD;
+}
+
+// Unlock function
 function unlock() {
-  const v = document.getElementById('pin').value;
-  const s = localStorage.getItem('tl_p') || 'trade123';
-  if (v === s) {
+  const inputEl = document.getElementById('pin');
+  const entered = inputEl.value.trim();   // remove hidden spaces
+  const actual = getPassword();
+
+  if (entered === actual) {
+    // Success
     document.getElementById('lock').style.display = 'none';
     document.getElementById('app').style.display = 'block';
-    rd(); rj();
+
+    // Clear error state if any
+    document.getElementById('lerr').style.display = 'none';
+    inputEl.classList.remove('bad');
+
+    // Load app data
+    rd();
+    rj();
+
   } else {
-    const i = document.getElementById('pin');
-    i.classList.add('bad');
+    // Failure
+    inputEl.classList.add('bad');
     document.getElementById('lerr').style.display = 'block';
-    setTimeout(() => i.classList.remove('bad'), 380);
-    i.value = ''; i.focus();
+
+    setTimeout(() => inputEl.classList.remove('bad'), 380);
+
+    inputEl.value = '';
+    inputEl.focus();
   }
+}
+
+// Optional: Change password function (for future use)
+function setNewPassword(newPass) {
+  if (!newPass || newPass.trim().length < 4) {
+    alert("Password must be at least 4 characters");
+    return;
+  }
+
+  localStorage.setItem('tl_p', newPass.trim());
+  alert("Password updated successfully");
+}
+
+// Optional: Reset password back to default
+function resetPassword() {
+  localStorage.removeItem('tl_p');
+  alert("Password reset to default (trade123)");
 }
 
 function chgPass() {
